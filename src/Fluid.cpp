@@ -1,9 +1,10 @@
 #include "Fluid.h"
 
-Fluid::Fluid(float dt, float diff)
+Fluid::Fluid(float dt, float diff, Square *square)
 {
 	this->dt = dt;
 	this->diff = diff;
+	this->square = square;
 
 	u = new float[N * N]();
 	v = new float[N * N]();
@@ -53,6 +54,7 @@ void Fluid::set_bnd(int b, float * x)
 // b will come into play later
 // x is current grid of values (we will use velocity and density) [reusable]
 // TODO: split this and make a private helper function so it is more OOP
+// TODO: we use diffuse for density but viscosuty for vectors (fix this)
 // x0 is previous values of the above
 void Fluid::diffuse(int b, float * x, float * x0)
 {
@@ -60,8 +62,8 @@ void Fluid::diffuse(int b, float * x, float * x0)
 
 	// TODO: 20 is number of iterations for Gauss-Seidel algorithm. can probably lower it for more efficiency or make it constant variable
 	for (int k = 0; k < 20; k++) {
-		for (int i = 1; i < (N - 2); i++) {
-			for (int j = 1; j < (N - 2); j++) {
+		for (int i = 1; i <= (N - 2); i++) {
+			for (int j = 1; j <= (N - 2); j++) {
 				x[IX(i, j)] = (x0[IX(i, j)] + a * (x[IX(i - 1, j)] + x[IX(i + 1, j)] + x[IX(i, j - 1)] + x[IX(i, j + 1)])) / (1 + 4 * a);
 			}
 		}
@@ -79,7 +81,7 @@ void Fluid::advect(int b, float *d, float *d0, float *u, float *v)
 	int i, j, i0, j0, i1, j1;
 	float x, y, s0, t0, s1, t1, dt0;
 
-	dt0 = dt * N;
+	dt0 = dt * (N - 2);
 
 	for (i = 1; i <= (N - 2); i++) {
 		for (j = 1; j <= (N - 2); j++) {
@@ -153,13 +155,28 @@ void Fluid::vel_step()
 {
 	//add_source(N, u, u0, dt); add_source(N, v, v0, dt); // this step was improved TODO: !IMPORTANT! need to make sure that we add new velocity before calling vel_step()
 	SWAP(u_prev, u);
-	diffuse(1, u, u_prev);
+	diffuse(1, u, u_prev); // TODO: change diffuse rate with visc
 	SWAP(v_prev, v);
-	diffuse(2, v, v_prev);
+	diffuse(2, v, v_prev); // TODO: change diffuse rate with visc
 	project(); // TODO: dont know yet
-	SWAP(u_prev, u); SWAP(v_prev, v);
+	SWAP(u_prev, u); 
+	SWAP(v_prev, v);
 
 	advect(1, u, u_prev, u_prev, v_prev);
 	advect(2, v, v_prev, u_prev, v_prev);
-	project(); // TODO: dont know yet
+
+	project(); // TODO: dont know yet
+}
+
+// TODO: this one is different obviously, try to optimize with shaders
+void Fluid::displayD()
+{
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			if (dens[IX(i, j)] > 0.0f) {
+				float currDens = 1 - dens[IX(i, j)];
+				square->display(i, j, glm::vec4(currDens, currDens, currDens, 1.0f));
+			}
+		}
+	}
 }

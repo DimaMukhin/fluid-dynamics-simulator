@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "Square.h"
 
 // TODO: can this be replaced with two dimensional array?
 #define IX(i, j) ((i) + (N) * (j))
@@ -11,7 +12,7 @@
 class Fluid
 {
 public:
-	Fluid(float dt, float diff); // TODO: add viscosity!!!
+	Fluid(float dt, float diff, Square *square); // TODO: add viscosity!!!
 
 	void Fluid::addDensity(int x, int y, float amount);
 
@@ -29,6 +30,8 @@ public:
 
 	void vel_step();
 
+	void displayD();
+
 	~Fluid();
 
 private:
@@ -43,4 +46,6 @@ private:
 	float dt;	// time step
 
 	float diff; // diffussion rate
+
+	Square *square;
 };
