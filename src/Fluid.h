@@ -12,7 +12,7 @@
 class Fluid
 {
 public:
-	Fluid(float dt, float diff, Square *square); // TODO: add viscosity!!!
+	Fluid(float dt, float diff, float visc, Square *square);
 
 	void Fluid::addDensity(int x, int y, float amount);
 
@@ -20,7 +20,7 @@ public:
 
 	void set_bnd(int b, float *x);
 
-	void diffuse(int b, float *x, float *x0);
+	void diffuse(int b, float *x, float *x0, float diff);
 
 	void advect(int b, float *d, float *d0, float *u, float *v); // this is what actually moves things based on the vector field
 
@@ -46,6 +46,7 @@ private:
 	float dt;	// time step
 
 	float diff; // diffussion rate
+	float visc; // viscosity of the fluid
 
 	Square *square;
 };

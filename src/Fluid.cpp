@@ -1,9 +1,10 @@
 #include "Fluid.h"
 
-Fluid::Fluid(float dt, float diff, Square *square)
+Fluid::Fluid(float dt, float diff, float visc, Square *square)
 {
 	this->dt = dt;
 	this->diff = diff;
+	this->visc = visc;
 	this->square = square;
 
 	u = new float[N * N]();
@@ -56,7 +57,7 @@ void Fluid::set_bnd(int b, float * x)
 // TODO: split this and make a private helper function so it is more OOP
 // TODO: we use diffuse for density but viscosuty for vectors (fix this)
 // x0 is previous values of the above
-void Fluid::diffuse(int b, float * x, float * x0)
+void Fluid::diffuse(int b, float * x, float * x0, float diff)
 {
 	float a = dt * diff * (N - 2) * (N - 2); // diffussion rate 'a' depends on constant diff, and the size of the grid (probably according to Navier stokes
 
@@ -146,7 +147,7 @@ void Fluid::dens_step()
 {
 	//add_source(); // this step was improved TODO: !IMPORTANT! need to make sure that we add new density before calling dens_step()
 	SWAP(dens_prev, dens);
-	diffuse(0, dens, dens_prev);
+	diffuse(0, dens, dens_prev, diff);
 	SWAP(dens_prev, dens);
 	advect(0, dens, dens_prev, u, v);
 }
@@ -155,9 +156,9 @@ void Fluid::vel_step()
 {
 	//add_source(N, u, u0, dt); add_source(N, v, v0, dt); // this step was improved TODO: !IMPORTANT! need to make sure that we add new velocity before calling vel_step()
 	SWAP(u_prev, u);
-	diffuse(1, u, u_prev); // TODO: change diffuse rate with visc
+	diffuse(1, u, u_prev, visc);
 	SWAP(v_prev, v);
-	diffuse(2, v, v_prev); // TODO: change diffuse rate with visc
+	diffuse(2, v, v_prev, visc);
 	project(); // TODO: dont know yet
 	SWAP(u_prev, u); 
 	SWAP(v_prev, v);
