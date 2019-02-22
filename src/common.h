@@ -1,6 +1,8 @@
 // Based on: http://www.cs.unm.edu/~angel/BOOK/INTERACTIVE_COMPUTER_GRAPHICS/SIXTH_EDITION/CODE/CHAPTER03/WINDOWS_VERSIONS/example2.cpp
 // Modified to isolate the main program and use GLM
 
+#pragma once
+
 #include <GL/glew.h>
 #ifdef __APPLE__  // include Mac OS X verions of headers
 #  include <OpenGL/gl.h>
@@ -16,6 +18,8 @@
 
 // Define a helpful macro for handling offsets into buffer objects
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
+
+const int N = 512;
 
 extern GLuint InitShader(const char* vShaderFile, const char* fShaderFile);
 

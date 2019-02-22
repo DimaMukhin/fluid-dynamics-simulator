@@ -1,6 +1,7 @@
 // Display a cube, using glDrawElements
 
 #include "common.h"
+#include "Fluid.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -10,6 +11,8 @@ const char *WINDOW_TITLE = "Project";
 const double FRAME_RATE_MS = 1000.0/60.0;
 
 GLuint  ModelView, Projection;
+
+Fluid *fluid;
 
 //----------------------------------------------------------------------------
 
@@ -26,6 +29,8 @@ void init()
    ModelView = glGetUniformLocation( program, "ModelView" );
    Projection = glGetUniformLocation( program, "Projection" );
 
+   fluid = new Fluid(0.1f, 0.0f);
+
    glEnable( GL_DEPTH_TEST );
    glClearColor( 1.0, 1.0, 1.0, 1.0 );
 }
@@ -35,6 +40,9 @@ void init()
 void display( void )
 {
    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+   fluid->vel_step();
+   fluid->dens_step();
 
    glutSwapBuffers();
    glFinish();
@@ -72,8 +80,7 @@ void reshape( int width, int height )
 {
    glViewport( 0, 0, width, height );
 
-   GLfloat aspect = GLfloat(width)/height;
-   glm::mat4  projection = glm::perspective( glm::radians(45.0f), aspect, 0.5f, 3.0f );
+   glm::mat4  projection = glm::ortho(0.0f, (GLfloat) N, (GLfloat) N, 0.0f);
 
    glUniformMatrix4fv( Projection, 1, GL_FALSE, glm::value_ptr(projection) );
 }
