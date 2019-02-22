@@ -37,7 +37,7 @@ Square::~Square()
 
 void Square::init()
 {
-	glPointSize((GLfloat) 1); // TODO: change with scale
+	glPointSize((GLfloat) scale);
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);

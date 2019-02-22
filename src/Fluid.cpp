@@ -175,7 +175,7 @@ void Fluid::displayD()
 		for (int j = 0; j < N; j++) {
 			if (dens[IX(i, j)] > 0.0f) {
 				float currDens = 1 - dens[IX(i, j)];
-				square->display(i, j, glm::vec4(currDens, currDens, currDens, 1.0f));
+				square->display(i * scale, j * scale, glm::vec4(currDens, currDens, currDens, 1.0f));
 			}
 		}
 	}

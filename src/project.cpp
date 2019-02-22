@@ -39,7 +39,8 @@ void init()
 	glUniform4fv(colorUniformLocation, 1, glm::value_ptr(glm::vec4()));
 
 	square = new Square(modelUniformLocation, vPosition, colorUniformLocation);
-	fluid = new Fluid(0.1f, 0.0f, square);
+	// TODO: NOTE! dummy version has a bug. diffusion doesnt work in dummy version. in this version diffussion works without velocity
+	fluid = new Fluid(0.1f, 0.0000001f, square);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -51,7 +52,7 @@ void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	fluid->addDensity(100, 100, 100.0f);
+	fluid->addDensity(100, 100, 10.0f);
 	fluid->addVelocity(100, 100, 1.0f, 1.0f);
 	fluid->vel_step();
 	fluid->dens_step();
@@ -93,7 +94,7 @@ void reshape(int width, int height)
 {
 	glViewport(0, 0, width, height);
 
-	glm::mat4  projection = glm::ortho(0.0f, (GLfloat)N, (GLfloat)N, 0.0f);
+	glm::mat4  projection = glm::ortho(0.0f, (GLfloat)N * scale, (GLfloat)N * scale, 0.0f);
 
 	glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
 }
