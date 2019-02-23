@@ -3,6 +3,7 @@
 #include "common.h"
 #include "Fluid.h"
 #include "Square.h"
+#include "ScreenCover.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,7 +14,9 @@ const double FRAME_RATE_MS = 1000.0 / 60.0;
 
 GLuint modelUniformLocation, viewUniformLocation, projectionUniformLocation;
 GLuint colorUniformLocation;
+GLuint densUniformLocation;
 
+ScreenCover *screenCover;
 Square *square;
 Fluid *fluid;
 
@@ -32,11 +35,14 @@ void init()
 	modelUniformLocation = glGetUniformLocation(program, "model");
 	viewUniformLocation = glGetUniformLocation(program, "view");
 	projectionUniformLocation = glGetUniformLocation(program, "projection");
+	densUniformLocation = glGetUniformLocation(program, "dens");
 
 	// default values
 	glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
 	glUniformMatrix4fv(viewUniformLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
 	glUniform4fv(colorUniformLocation, 1, glm::value_ptr(glm::vec4()));
+
+	screenCover = new ScreenCover(vPosition);
 
 	square = new Square(modelUniformLocation, vPosition, colorUniformLocation);
 	// TODO: NOTE! dummy version has a bug. diffusion doesnt work in dummy version. in this version diffussion works without velocity
@@ -56,7 +62,9 @@ void display(void)
 	fluid->addVelocity(100, 100, 1.0f, 1.0f);
 	fluid->vel_step();
 	fluid->dens_step();
-	fluid->displayD();
+	//fluid->displayD();
+
+	screenCover->display();
 
 	glutSwapBuffers();
 	glFinish();
