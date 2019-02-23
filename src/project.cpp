@@ -14,7 +14,6 @@ const double FRAME_RATE_MS = 1000.0 / 60.0;
 
 GLuint modelUniformLocation, viewUniformLocation, projectionUniformLocation;
 GLuint colorUniformLocation;
-GLuint densUniformLocation;
 
 ScreenCover *screenCover;
 Square *square;
@@ -35,7 +34,6 @@ void init()
 	modelUniformLocation = glGetUniformLocation(program, "model");
 	viewUniformLocation = glGetUniformLocation(program, "view");
 	projectionUniformLocation = glGetUniformLocation(program, "projection");
-	densUniformLocation = glGetUniformLocation(program, "dens");
 
 	// default values
 	glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
