@@ -4,6 +4,7 @@
 #include "Fluid.h"
 #include "Square.h"
 #include "ScreenCover.h"
+#include "FluidDisplay.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,7 +16,8 @@ const double FRAME_RATE_MS = 1000.0 / 60.0;
 GLuint modelUniformLocation, viewUniformLocation, projectionUniformLocation;
 GLuint colorUniformLocation;
 
-ScreenCover *screenCover;
+glm::vec4 *fakeGrid;
+FluidDisplay *fd;
 Square *square;
 Fluid *fluid;
 
@@ -30,6 +32,7 @@ void init()
 
 	// set up vertex arrays
 	GLuint vPosition = glGetAttribLocation(program, "vPosition");
+	GLuint vColor = glGetAttribLocation(program, "vColor");
 
 	modelUniformLocation = glGetUniformLocation(program, "model");
 	viewUniformLocation = glGetUniformLocation(program, "view");
@@ -40,11 +43,19 @@ void init()
 	glUniformMatrix4fv(viewUniformLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
 	glUniform4fv(colorUniformLocation, 1, glm::value_ptr(glm::vec4()));
 
-	screenCover = new ScreenCover(vPosition);
+	fd = new FluidDisplay(vPosition, vColor);
+
+	fakeGrid = new glm::vec4[N*N]();
+	for (int i = 0; i < N*N; i++) {
+		fakeGrid[i] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	fd->init();
+	fd->update(fakeGrid);
 
 	square = new Square(modelUniformLocation, vPosition, colorUniformLocation);
 	// TODO: NOTE! dummy version has a bug. diffusion doesnt work in dummy version. in this version diffussion works without velocity
-	fluid = new Fluid(0.1f, 0.00000001f, 0.00005f, square);
+	fluid = new Fluid(0.1f, 0.00000001f, 0.00005f, square, fd);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -56,13 +67,7 @@ void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	fluid->addDensity(100, 100, 10.0f);
-	fluid->addVelocity(100, 100, 1.0f, 1.0f);
-	fluid->vel_step();
-	fluid->dens_step();
-	//fluid->displayD();
-
-	screenCover->display();
+	fluid->displayFluid();
 
 	glutSwapBuffers();
 	glFinish();
@@ -92,6 +97,11 @@ void mouse(int button, int state, int x, int y)
 
 void update(void)
 {
+	fluid->addDensity(100, 100, 10.0f);
+	fluid->addVelocity(100, 100, 1.0f, 1.0f);
+	fluid->vel_step();
+	fluid->dens_step();
+	fluid->updateDisplay();
 }
 
 //----------------------------------------------------------------------------

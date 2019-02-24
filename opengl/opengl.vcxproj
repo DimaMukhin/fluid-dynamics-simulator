@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\common.h" />
     <ClInclude Include="..\src\Fluid.h" />
+    <ClInclude Include="..\src\FluidDisplay.h" />
     <ClInclude Include="..\src\ScreenCover.h" />
     <ClInclude Include="..\src\Square.h" />
     <ClInclude Include="stdafx.h" />
@@ -160,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Fluid.cpp" />
+    <ClCompile Include="..\src\FluidDisplay.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\project.cpp" />
     <ClCompile Include="..\src\ScreenCover.cpp" />

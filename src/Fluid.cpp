@@ -1,11 +1,12 @@
 #include "Fluid.h"
 
-Fluid::Fluid(float dt, float diff, float visc, Square *square)
+Fluid::Fluid(float dt, float diff, float visc, Square *square, FluidDisplay *fd)
 {
 	this->dt = dt;
 	this->diff = diff;
 	this->visc = visc;
 	this->square = square;
+	this->fd = fd;
 
 	u = new float[N * N]();
 	v = new float[N * N]();
@@ -170,14 +171,18 @@ void Fluid::vel_step()
 }
 
 // TODO: this one is different obviously, try to optimize with shaders
-void Fluid::displayD()
+void Fluid::updateDisplay()
 {
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < N; j++) {
-			if (dens[IX(i, j)] > 0.0f) {
-				float currDens = 1 - dens[IX(i, j)];
-				square->display(i * scale, j * scale, glm::vec4(currDens, currDens, currDens, 1.0f));
-			}
-		}
+	glm::vec4 *colors = new glm::vec4[N*N];
+	for (int i = 0; i < N*N; i++) {
+		float currColor = 1 - dens[i];
+		colors[i] = glm::vec4(currColor, currColor, currColor, 1.0f);
 	}
+
+	fd->update(colors);
+}
+
+void Fluid::displayFluid()
+{
+	fd->display();
 }

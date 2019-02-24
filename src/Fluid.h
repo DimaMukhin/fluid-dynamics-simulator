@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "Square.h"
+#include "FluidDisplay.h"
 
 // TODO: can this be replaced with two dimensional array?
 #define IX(i, j) ((i) + (N) * (j))
@@ -12,7 +13,7 @@
 class Fluid
 {
 public:
-	Fluid(float dt, float diff, float visc, Square *square);
+	Fluid(float dt, float diff, float visc, Square *square, FluidDisplay *fd);
 
 	void Fluid::addDensity(int x, int y, float amount);
 
@@ -30,7 +31,9 @@ public:
 
 	void vel_step();
 
-	void displayD();
+	void updateDisplay();
+
+	void displayFluid();
 
 	~Fluid();
 
@@ -49,4 +52,5 @@ private:
 	float visc; // viscosity of the fluid
 
 	Square *square;
+	FluidDisplay *fd;
 };

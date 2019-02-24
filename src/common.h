@@ -21,7 +21,7 @@
 
 const int N = 128;
 
-const int scale = 4;
+const int scale = 5;
 
 extern GLuint InitShader(const char* vShaderFile, const char* fShaderFile);
 
