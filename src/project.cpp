@@ -53,7 +53,7 @@ void init()
 	fd->update(fakeGrid);
 
 	// TODO: NOTE! dummy version has a bug. diffusion doesnt work in dummy version. in this version diffussion works without velocity
-	fluid = new Fluid(0.1f, 0.000001f, 0.00000001f, fd);
+	fluid = new Fluid(0.1f, 0.0001f, 0.00000001f, fd);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -86,10 +86,17 @@ void keyboard(unsigned char key, int x, int y)
 //----------------------------------------------------------------------------
 
 glm::vec2 prevLocation;
+int densityState = 0;
 void mouse(int button, int state, int x, int y)
 {
 	if (state == GLUT_DOWN) {
 		prevLocation = glm::vec2(x, y);
+
+		switch (button) {
+			case GLUT_LEFT_BUTTON:    densityState = 0;  break;
+			case GLUT_RIGHT_BUTTON:   densityState = 1;  break;
+			case GLUT_MIDDLE_BUTTON:  densityState = 2;  break;
+		}
 	}
 }
 
@@ -99,9 +106,15 @@ void mouseMove(int x, int y)
 {
 	glm::vec2 moveDir = glm::normalize(glm::vec2(x, y) - prevLocation);
 
-	fluid->addDensity(x / scale, y / scale, 100.0f);
+	if (densityState == 0)
+		fluid->addDensity(x / scale, y / scale, 20.0f);
+	else if (densityState == 1)
+		fluid->addVelocity(x / scale, y / scale, moveDir.x, moveDir.y);
+	else {
+		fluid->addDensity(x / scale, y / scale, 20.0f);
+		fluid->addVelocity(x / scale, y / scale, moveDir.x, moveDir.y);
+	}
 
-	fluid->addVelocity(x / scale, y / scale, moveDir.x, moveDir.y);
 
 	prevLocation = glm::vec2(x, y);
 }
@@ -110,8 +123,6 @@ void mouseMove(int x, int y)
 
 void update(void)
 {
-	/*fluid->addDensity(100, 100, 10.0f);
-	fluid->addVelocity(100, 100, 1.0f, 1.0f);*/
 	fluid->vel_step();
 	fluid->dens_step();
 	fluid->updateDisplay();
