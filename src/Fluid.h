@@ -13,7 +13,7 @@
 class Fluid
 {
 public:
-	Fluid(float dt, float diff, float visc, Square *square, FluidDisplay *fd);
+	Fluid(float dt, float diff, float visc, FluidDisplay *fd);
 
 	void Fluid::addDensity(int x, int y, float amount);
 
@@ -51,6 +51,5 @@ private:
 	float diff; // diffussion rate
 	float visc; // viscosity of the fluid
 
-	Square *square;
 	FluidDisplay *fd;
 };

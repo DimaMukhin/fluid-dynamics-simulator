@@ -1,11 +1,10 @@
 #include "Fluid.h"
 
-Fluid::Fluid(float dt, float diff, float visc, Square *square, FluidDisplay *fd)
+Fluid::Fluid(float dt, float diff, float visc, FluidDisplay *fd)
 {
 	this->dt = dt;
 	this->diff = diff;
 	this->visc = visc;
-	this->square = square;
 	this->fd = fd;
 
 	u = new float[N * N]();

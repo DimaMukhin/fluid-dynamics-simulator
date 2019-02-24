@@ -21,7 +21,7 @@
 
 const int N = 128;
 
-const int scale = 5;
+const int scale = 4;
 
 extern GLuint InitShader(const char* vShaderFile, const char* fShaderFile);
 
@@ -35,6 +35,7 @@ extern void update(void);
 extern void display(void);
 extern void keyboard(unsigned char key, int x, int y);
 extern void mouse(int button, int state, int x, int y);
+extern void mouseMove(int x, int y);
 extern void reshape(int width, int height);
 
 

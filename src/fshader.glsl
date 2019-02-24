@@ -1,10 +1,9 @@
 #version 150
 
-uniform vec4 color;
 in vec4 fcolor;
-out vec4 thecolor;
+out vec4 color;
 
 void main() 
 {
-	thecolor = fcolor;
+	color = fcolor;
 }

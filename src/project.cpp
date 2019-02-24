@@ -18,7 +18,6 @@ GLuint colorUniformLocation;
 
 glm::vec4 *fakeGrid;
 FluidDisplay *fd;
-Square *square;
 Fluid *fluid;
 
 //----------------------------------------------------------------------------
@@ -53,9 +52,8 @@ void init()
 	fd->init();
 	fd->update(fakeGrid);
 
-	square = new Square(modelUniformLocation, vPosition, colorUniformLocation);
 	// TODO: NOTE! dummy version has a bug. diffusion doesnt work in dummy version. in this version diffussion works without velocity
-	fluid = new Fluid(0.1f, 0.00000001f, 0.00005f, square, fd);
+	fluid = new Fluid(0.1f, 0.000001f, 0.00000001f, fd);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -87,18 +85,33 @@ void keyboard(unsigned char key, int x, int y)
 
 //----------------------------------------------------------------------------
 
+glm::vec2 prevLocation;
 void mouse(int button, int state, int x, int y)
 {
 	if (state == GLUT_DOWN) {
+		prevLocation = glm::vec2(x, y);
 	}
+}
+
+//----------------------------------------------------------------------------
+
+void mouseMove(int x, int y)
+{
+	glm::vec2 moveDir = glm::normalize(glm::vec2(x, y) - prevLocation);
+
+	fluid->addDensity(x / scale, y / scale, 100.0f);
+
+	fluid->addVelocity(x / scale, y / scale, moveDir.x, moveDir.y);
+
+	prevLocation = glm::vec2(x, y);
 }
 
 //----------------------------------------------------------------------------
 
 void update(void)
 {
-	fluid->addDensity(100, 100, 10.0f);
-	fluid->addVelocity(100, 100, 1.0f, 1.0f);
+	/*fluid->addDensity(100, 100, 10.0f);
+	fluid->addVelocity(100, 100, 1.0f, 1.0f);*/
 	fluid->vel_step();
 	fluid->dens_step();
 	fluid->updateDisplay();
