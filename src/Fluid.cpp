@@ -40,23 +40,28 @@ void Fluid::addVelocity(int x, int y, float amountX, float amountY)
 	}
 }
 
-// b is boundry type
-// b can mean u, v, or dens
-void Fluid::set_bnd(int b, float * x)
+/*
+Set boundary values so no density escapes the grid
+	boundaryType:	set to 0 to copy values from adjacent cells into edge cells
+					set to 1 to set horizontal edges
+					set to 2 to set vertical edges
+	grid: the grid to set boundary values to
+*/
+void Fluid::setBoundaryValues(int boundaryType, float * grid)
 {
 	// edges
 	for (int i = 1; i <= (N - 2); i++) {
-		x[IX(0, i)] = b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
-		x[IX(N - 1, i)] = b == 1 ? -x[IX(N - 2, i)] : x[IX(N - 2, i)];
-		x[IX(i, 0)] = b == 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
-		x[IX(i, N - 1)] = b == 2 ? -x[IX(i, N - 2)] : x[IX(i, N - 2)];
+		grid[IX(0, i)] = boundaryType == 1 ? -grid[IX(1, i)] : grid[IX(1, i)];
+		grid[IX(N - 1, i)] = boundaryType == 1 ? -grid[IX(N - 2, i)] : grid[IX(N - 2, i)];
+		grid[IX(i, 0)] = boundaryType == 2 ? -grid[IX(i, 1)] : grid[IX(i, 1)];
+		grid[IX(i, N - 1)] = boundaryType == 2 ? -grid[IX(i, N - 2)] : grid[IX(i, N - 2)];
 	}
 
 	// corners
-	x[IX(0, 0)] = 0.5 * (x[IX(1, 0)] + x[IX(0, 1)]);
-	x[IX(0, N - 1)] = 0.5 * (x[IX(1, N - 1)] + x[IX(0, N - 2)]);
-	x[IX(N - 1, 0)] = 0.5*(x[IX(N - 2, 0)] + x[IX(N - 1, 1)]);
-	x[IX(N - 1, N - 1)] = 0.5*(x[IX(N - 2, N - 1)] + x[IX(N - 1, N - 2)]);
+	grid[IX(0, 0)] = 0.5 * (grid[IX(1, 0)] + grid[IX(0, 1)]);
+	grid[IX(0, N - 1)] = 0.5 * (grid[IX(1, N - 1)] + grid[IX(0, N - 2)]);
+	grid[IX(N - 1, 0)] = 0.5 * (grid[IX(N - 2, 0)] + grid[IX(N - 1, 1)]);
+	grid[IX(N - 1, N - 1)] = 0.5 * (grid[IX(N - 2, N - 1)] + grid[IX(N - 1, N - 2)]);
 }
 
 // b will come into play later
@@ -77,7 +82,7 @@ void Fluid::diffuse(int b, float * x, float * x0, float rate)
 			}
 		}
 
-		set_bnd(b, x);
+		setBoundaryValues(b, x);
 	}
 }
 
@@ -124,7 +129,7 @@ void Fluid::advect(int b, float *d, float *d0, float *u, float *v)
 		}
 	}
 
-	set_bnd(b, d);
+	setBoundaryValues(b, d);
 }
 
 void Fluid::project()
@@ -142,8 +147,8 @@ void Fluid::project()
 		}
 	}
 
-	set_bnd(0, v_prev);
-	set_bnd(0, u_prev);
+	setBoundaryValues(0, v_prev);
+	setBoundaryValues(0, u_prev);
 
 	// solve Posson equation with Gauss-Seidel algorithm
 	for (k = 0; k < 20; k++) {
@@ -154,7 +159,7 @@ void Fluid::project()
 			}
 		}
 
-		set_bnd(0, u_prev);
+		setBoundaryValues(0, u_prev);
 	}
 
 	// subtract gradient field
@@ -165,8 +170,8 @@ void Fluid::project()
 		}
 	}
 
-	set_bnd(1, u);
-	set_bnd(2, v);
+	setBoundaryValues(1, u);
+	setBoundaryValues(2, v);
 }
 
 void Fluid::dens_step()

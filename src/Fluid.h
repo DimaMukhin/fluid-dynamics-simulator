@@ -18,7 +18,7 @@ public:
 
 	void Fluid::addVelocity(int x, int y, float amountX, float amountY);
 
-	void set_bnd(int b, float *x);
+	void setBoundaryValues(int boundaryType, float * grid);
 
 	void diffuse(int b, float *x, float *x0, float diff);
 
