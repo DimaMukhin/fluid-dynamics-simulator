@@ -7,6 +7,7 @@ FluidDisplay::FluidDisplay(GLuint vertexCoordAttribLocation, GLuint vertexColorA
 
 	particles = new glm::vec4[numOfVertices]();
 	int count = 0;
+
 	// TODO: take a note that we go columns rows and not rows columns
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
@@ -56,4 +57,6 @@ void FluidDisplay::update(glm::vec4 * colors)
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * numOfVertices, sizeof(glm::vec4) * numOfVertices, colors);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	delete colors;
 }
