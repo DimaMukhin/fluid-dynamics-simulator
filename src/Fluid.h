@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.h"
-#include "Square.h"
 #include "FluidDisplay.h"
 
 // TODO: can this be replaced with two dimensional array?

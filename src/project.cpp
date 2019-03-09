@@ -2,8 +2,6 @@
 
 #include "common.h"
 #include "Fluid.h"
-#include "Square.h"
-#include "ScreenCover.h"
 #include "FluidDisplay.h"
 
 #include <glm/glm.hpp>
