@@ -53,7 +53,7 @@ void init()
 	fd->update(fakeGrid);
 
 	// TODO: NOTE! dummy version has a bug. diffusion doesnt work in dummy version. in this version diffussion works without velocity
-	fluid = new Fluid(0.1f, 0.0001f, 0.00000001f, fd);
+	fluid = new Fluid(0.1f, 0.0001f, 0.0000001f, fd);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 1.0, 1.0, 1.0);

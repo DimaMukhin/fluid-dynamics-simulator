@@ -179,6 +179,7 @@ void Fluid::updateDisplay()
 	}
 
 	fd->update(colors);
+	delete colors;
 }
 
 void Fluid::displayFluid()
