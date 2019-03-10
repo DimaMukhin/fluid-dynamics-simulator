@@ -22,7 +22,7 @@ public:
 
 	void diffuse(int boundaryCondition, float * grid, float * previousGrid, float diff);
 
-	void advect(int b, float *d, float *d0, float *u, float *v); // this is what actually moves things based on the vector field
+	void move(int boundaryCondition, float *grid, float *previousGrid, float *velocityX, float *velocityY); // this is what actually moves things based on the vector field
 
 	void project();
 

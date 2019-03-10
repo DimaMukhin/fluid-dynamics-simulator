@@ -75,10 +75,13 @@ void Fluid::setBoundaryValues(int boundaryType, float * grid)
 	grid[IX(N - 1, N - 1)] = 0.5 * (grid[IX(N - 2, N - 1)] + grid[IX(N - 1, N - 2)]);
 }
 
-// b will come into play later
-// x is current grid of values (we will use velocity and density) [reusable]
-// x0 is previous values of the above
-// rate is the rate of diffussion for density, and the rate of viscosity for velocity
+/*
+Diffuse step of a grid
+	boundaryCondition: boundary condition when fixing boundary cells (see setBoundaryValues for more information)
+	grid: the grid to diffuse its values
+	previousGrid: the previous values of the grid
+	rate: diffussion rate / viscosity 
+*/
 void Fluid::diffuse(int boundaryCondition, float * grid, float * previousGrid, float rate)
 {
 	// diffussion/viscosity rate 'a' depends on constant diff, and the size of the grid (based on to Navier stokes equation)
@@ -97,22 +100,30 @@ void Fluid::diffuse(int boundaryCondition, float * grid, float * previousGrid, f
 	}
 }
 
-// d is current velocity or current dencity (so we make it reusable)
-// d0 is the previous for d
-// we need u and v passed because of reusability for vec step and vel step
-void Fluid::advect(int b, float *d, float *d0, float *u, float *v)
+/*
+Move a grid of values based on a velocity grid
+This one can be a bit hard to understand, so for more information, see the paper that came with this project
+	boundaryCondition: boundary condition when fixing boundary cells (see setBoundaryValues for more information)
+	grid: the grid to move its values
+	previousGrid: the previous values of the grid
+	velocityX: the x-direction velocities to use when moving the grid
+	velocityY: the y-direction velocities to use when moving the grid
+*/
+void Fluid::move(int boundaryCondition, float *grid, float *previousGrid, float *velocityX, float *velocityY)
 {
-	int i, j, i0, j0, i1, j1;
-	float x, y, s0, t0, s1, t1, dt0;
+	float x, y;				// x,y of current cell
+	int i0, j0, i1, j1;		// x,y values of 4 closest cells to x,y
+	float s0, t0, s1, t1;	// distances from x,y to the 4 closest cells
+	float dt0;				// time step back in time amount
 
 	dt0 = dt * (N - 2); // step back (based on Navier Stokes)
 
 	// for every cell
-	for (i = 1; i <= (N - 2); i++) {
-		for (j = 1; j <= (N - 2); j++) {
+	for (int i = 1; i <= (N - 2); i++) {
+		for (int j = 1; j <= (N - 2); j++) {
 			// find previous location of particle (x,y)
-			x = i - dt0 * u[IX(i, j)];
-			y = j - dt0 * v[IX(i, j)];
+			x = i - dt0 * velocityX[IX(i, j)];
+			y = j - dt0 * velocityY[IX(i, j)];
 
 			// fixing x points falling outside the boundaries of the container
 			if (x < 0.5) x = 0.5; 
@@ -127,7 +138,8 @@ void Fluid::advect(int b, float *d, float *d0, float *u, float *v)
 			if (y > (N - 2) + 0.5) y = (N - 2) + 0.5; 
 			
 			// y coordinates of 4 closest cells to (x,y)
-			j0 = (int)y; j1 = j0 + 1;
+			j0 = (int) y; 
+			j1 = j0 + 1;
 
 			// calculating distances between x,y and centers of 4 closest cells
 			s1 = x - i0;
@@ -136,11 +148,14 @@ void Fluid::advect(int b, float *d, float *d0, float *u, float *v)
 			t0 = 1 - t1;
 
 			// linear interpolation between 4 closest cells to (x,y) to determine new value at cell
-			d[IX(i, j)] = s0 * (t0 * d0[IX(i0, j0)] + t1 * d0[IX(i0, j1)]) + s1 * (t0 * d0[IX(i1, j0)] + t1 * d0[IX(i1, j1)]);
+			grid[IX(i, j)] = s0 * (t0 * 
+				previousGrid[IX(i0, j0)] + t1 * 
+				previousGrid[IX(i0, j1)]) + s1 * 
+				(t0 * previousGrid[IX(i1, j0)] + t1 * previousGrid[IX(i1, j1)]);
 		}
 	}
 
-	setBoundaryValues(b, d);
+	setBoundaryValues(boundaryCondition, grid);
 }
 
 void Fluid::project()
@@ -191,7 +206,7 @@ void Fluid::dens_step()
 	SWAP(dens_prev, dens);
 	diffuse(0, dens, dens_prev, diff);
 	SWAP(dens_prev, dens);
-	advect(0, dens, dens_prev, u, v);
+	move(0, dens, dens_prev, u, v);
 }
 
 void Fluid::vel_step()
@@ -205,8 +220,8 @@ void Fluid::vel_step()
 	SWAP(u_prev, u); 
 	SWAP(v_prev, v);
 
-	advect(1, u, u_prev, u_prev, v_prev);
-	advect(2, v, v_prev, u_prev, v_prev);
+	move(1, u, u_prev, u_prev, v_prev);
+	move(2, v, v_prev, u_prev, v_prev);
 
 	project();
 }
