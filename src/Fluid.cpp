@@ -22,16 +22,27 @@ Fluid::Fluid(float dt, float diff, float visc, FluidDisplay *fd)
 	dens_prev = new float[N * N]();
 }
 
-// add density to location
-// cannot add density outside of grid
+/*
+add density to location
+cannot add density outside of grid
+	x: x location of cell
+	y: y location of cell
+	amount: amount of density to add
+*/
 void Fluid::addDensity(int x, int y, float amount)
 {
 	if (x >= 0 && x < N && y >= 0 && y < N)
 		dens[IX(x, y)] += amount;
 }
 
-// add velocity to location
-// cannot add velocity outside of grid
+/*
+add velocity to location
+cannot add velocity outside of grid
+	x: x location of cell
+	y: y location of cell
+	amountX: amount of velocity in x direction to add
+	amountY: amount of velocity in y direction to add
+*/
 void Fluid::addVelocity(int x, int y, float amountX, float amountY)
 {
 	if (x >= 0 && x < N && y >= 0 && y < N) {
@@ -68,7 +79,7 @@ void Fluid::setBoundaryValues(int boundaryType, float * grid)
 // x is current grid of values (we will use velocity and density) [reusable]
 // x0 is previous values of the above
 // rate is the rate of diffussion for density, and the rate of viscosity for velocity
-void Fluid::diffuse(int b, float * x, float * x0, float rate)
+void Fluid::diffuse(int boundaryCondition, float * grid, float * previousGrid, float rate)
 {
 	// diffussion/viscosity rate 'a' depends on constant diff, and the size of the grid (based on to Navier stokes equation)
 	float a = dt * diff * (N - 2) * (N - 2); 
@@ -78,11 +89,11 @@ void Fluid::diffuse(int b, float * x, float * x0, float rate)
 	for (int k = 0; k < 20; k++) {
 		for (int i = 1; i <= (N - 2); i++) {
 			for (int j = 1; j <= (N - 2); j++) {
-				x[IX(i, j)] = (x0[IX(i, j)] + a * (x[IX(i - 1, j)] + x[IX(i + 1, j)] + x[IX(i, j - 1)] + x[IX(i, j + 1)])) / (1 + 4 * a);
+				grid[IX(i, j)] = (previousGrid[IX(i, j)] + a * (grid[IX(i - 1, j)] + grid[IX(i + 1, j)] + grid[IX(i, j - 1)] + grid[IX(i, j + 1)])) / (1 + 4 * a);
 			}
 		}
 
-		setBoundaryValues(b, x);
+		setBoundaryValues(boundaryCondition, grid);
 	}
 }
 
