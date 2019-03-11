@@ -14,12 +14,13 @@ Fluid::Fluid(float dt, float diff, float visc, FluidDisplay *fd)
 	this->visc = visc;
 	this->fd = fd;
 
-	u = new float[N * N]();
-	v = new float[N * N]();
-	u_prev = new float[N * N]();
-	v_prev = new float[N * N]();
+	// initialize all values
+	velocityX = new float[N * N]();
+	velocityY = new float[N * N]();
+	previousVelocityX = new float[N * N]();
+	previousVelocityY = new float[N * N]();
 	dens = new float[N * N]();
-	dens_prev = new float[N * N]();
+	previousDens = new float[N * N]();
 }
 
 /*
@@ -46,8 +47,8 @@ cannot add velocity outside of grid
 void Fluid::addVelocity(int x, int y, float amountX, float amountY)
 {
 	if (x >= 0 && x < N && y >= 0 && y < N) {
-		u[IX(x, y)] += amountX;
-		v[IX(x, y)] += amountY;
+		velocityX[IX(x, y)] += amountX;
+		velocityY[IX(x, y)] += amountY;
 	}
 }
 
@@ -158,74 +159,87 @@ void Fluid::move(int boundaryCondition, float *grid, float *previousGrid, float 
 	setBoundaryValues(boundaryCondition, grid);
 }
 
-void Fluid::project()
+/*
+fix velocity grid such that it becomes mass conserving
+this is probably the most complex algorithm in this solver
+for more information see the paper that comes with this project
+*/
+void Fluid::fixMassConservation()
 {
-	int i, j, k;
-	float h;
-
-	h = 1.0 / (N - 2);
+	float h = 1.0 / (N - 2);
 
 	// compute divergence
-	for (i = 1; i <= (N - 2); i++) {
-		for (j = 1; j <= (N - 2); j++) {
-			v_prev[IX(i, j)] = -0.5 * h * (u[IX(i + 1, j)] - u[IX(i - 1, j)] + v[IX(i, j + 1)] - v[IX(i, j - 1)]);
-			u_prev[IX(i, j)] = 0;
+	for (int i = 1; i <= (N - 2); i++) {
+		for (int j = 1; j <= (N - 2); j++) {
+			previousVelocityY[IX(i, j)] = -0.5 * h * (velocityX[IX(i + 1, j)] - velocityX[IX(i - 1, j)] + velocityY[IX(i, j + 1)] - velocityY[IX(i, j - 1)]);
+			previousVelocityX[IX(i, j)] = 0;
 		}
 	}
 
-	setBoundaryValues(0, v_prev);
-	setBoundaryValues(0, u_prev);
+	setBoundaryValues(0, previousVelocityY);
+	setBoundaryValues(0, previousVelocityX);
 
 	// solve Posson equation with Gauss-Seidel algorithm
-	for (k = 0; k < 20; k++) {
-		for (i = 1; i <= (N - 2); i++) {
-			for (j = 1; j <= (N - 2); j++) {
-				u_prev[IX(i, j)] = (v_prev[IX(i, j)] + u_prev[IX(i - 1, j)] + u_prev[IX(i + 1, j)] +
-					u_prev[IX(i, j - 1)] + u_prev[IX(i, j + 1)]) / 4;
+	for (int k = 0; k < 20; k++) {
+		for (int i = 1; i <= (N - 2); i++) {
+			for (int j = 1; j <= (N - 2); j++) {
+				previousVelocityX[IX(i, j)] = (previousVelocityY[IX(i, j)] + previousVelocityX[IX(i - 1, j)] + previousVelocityX[IX(i + 1, j)] +
+					previousVelocityX[IX(i, j - 1)] + previousVelocityX[IX(i, j + 1)]) / 4;
 			}
 		}
 
-		setBoundaryValues(0, u_prev);
+		setBoundaryValues(0, previousVelocityX);
 	}
 
 	// subtract gradient field
-	for (i = 1; i <= (N - 2); i++) {
-		for (j = 1; j <= (N - 2); j++) {
-			u[IX(i, j)] -= 0.5*(u_prev[IX(i + 1, j)] - u_prev[IX(i - 1, j)]) / h;
-			v[IX(i, j)] -= 0.5*(u_prev[IX(i, j + 1)] - u_prev[IX(i, j - 1)]) / h;
+	for (int i = 1; i <= (N - 2); i++) {
+		for (int j = 1; j <= (N - 2); j++) {
+			velocityX[IX(i, j)] -= 0.5*(previousVelocityX[IX(i + 1, j)] - previousVelocityX[IX(i - 1, j)]) / h;
+			velocityY[IX(i, j)] -= 0.5*(previousVelocityX[IX(i, j + 1)] - previousVelocityX[IX(i, j - 1)]) / h;
 		}
 	}
 
-	setBoundaryValues(1, u);
-	setBoundaryValues(2, v);
+	setBoundaryValues(1, velocityX);
+	setBoundaryValues(2, velocityY);
 }
 
-void Fluid::dens_step()
+/*
+Density step
+called every update()
+*/
+void Fluid::densityStep()
 {
 	//add_source(); // this step was improved TODO: !IMPORTANT! need to make sure that we add new density before calling dens_step()
-	SWAP(dens_prev, dens);
-	diffuse(0, dens, dens_prev, diff);
-	SWAP(dens_prev, dens);
-	move(0, dens, dens_prev, u, v);
+	SWAP(previousDens, dens);
+	diffuse(0, dens, previousDens, diff);
+	SWAP(previousDens, dens);
+	move(0, dens, previousDens, velocityX, velocityY);
 }
 
-void Fluid::vel_step()
+/*
+velocity step
+called every update()
+*/
+void Fluid::velocityStep()
 {
 	//add_source(N, u, u0, dt); add_source(N, v, v0, dt); // this step was improved TODO: !IMPORTANT! need to make sure that we add new velocity before calling vel_step()
-	SWAP(u_prev, u);
-	diffuse(1, u, u_prev, visc);
-	SWAP(v_prev, v);
-	diffuse(2, v, v_prev, visc);
-	project();
-	SWAP(u_prev, u); 
-	SWAP(v_prev, v);
+	SWAP(previousVelocityX, velocityX);
+	diffuse(1, velocityX, previousVelocityX, visc);
+	SWAP(previousVelocityY, velocityY);
+	diffuse(2, velocityY, previousVelocityY, visc);
+	fixMassConservation();
+	SWAP(previousVelocityX, velocityX);
+	SWAP(previousVelocityY, velocityY);
 
-	move(1, u, u_prev, u_prev, v_prev);
-	move(2, v, v_prev, u_prev, v_prev);
+	move(1, velocityX, previousVelocityX, previousVelocityX, previousVelocityY);
+	move(2, velocityY, previousVelocityY, previousVelocityX, previousVelocityY);
 
-	project();
+	fixMassConservation();
 }
 
+/*
+update display colors
+*/
 void Fluid::updateDisplay()
 {
 	glm::vec4 *colors = new glm::vec4[N*N];
@@ -237,6 +251,9 @@ void Fluid::updateDisplay()
 	fd->update(colors);
 }
 
+/*
+display density grid on screen
+*/
 void Fluid::displayFluid()
 {
 	fd->display();

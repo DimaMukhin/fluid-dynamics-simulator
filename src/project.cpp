@@ -121,8 +121,8 @@ void mouseMove(int x, int y)
 
 void update(void)
 {
-	fluid->vel_step();
-	fluid->dens_step();
+	fluid->velocityStep();
+	fluid->densityStep();
 	fluid->updateDisplay();
 }
 
