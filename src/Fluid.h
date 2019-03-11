@@ -20,7 +20,7 @@ public:
 
 	void diffuse(int boundaryCondition, float * grid, float * previousGrid, float diff);
 
-	void move(int boundaryCondition, float *grid, float *previousGrid, float *velocityX, float *velocityY); // this is what actually moves things based on the vector field
+	void move(int boundaryCondition, float *grid, float *previousGrid, float *velocityX, float *velocityY);
 
 	void fixMassConservation();
 
@@ -35,7 +35,7 @@ public:
 private:
 	float *velocityX, *velocityY;					// velocity grid in x and y
 	float *previousVelocityX, *previousVelocityY;	// previous velocity grid in x and y
-	
+
 	float *dens;			// density grid
 	float *previousDens;	// previous density grid
 

@@ -209,10 +209,13 @@ called every update()
 */
 void Fluid::densityStep()
 {
-	//add_source(); // this step was improved TODO: !IMPORTANT! need to make sure that we add new density before calling dens_step()
+	// !IMPORTANT! need to make sure that we add new density before calling densityStep()
 	SWAP(previousDens, dens);
+
 	diffuse(0, dens, previousDens, diff);
+
 	SWAP(previousDens, dens);
+
 	move(0, dens, previousDens, velocityX, velocityY);
 }
 
@@ -222,12 +225,16 @@ called every update()
 */
 void Fluid::velocityStep()
 {
-	//add_source(N, u, u0, dt); add_source(N, v, v0, dt); // this step was improved TODO: !IMPORTANT! need to make sure that we add new velocity before calling vel_step()
+	// !IMPORTANT! need to make sure that we add new velocity before calling velocityStep()
 	SWAP(previousVelocityX, velocityX);
+
 	diffuse(1, velocityX, previousVelocityX, visc);
+
 	SWAP(previousVelocityY, velocityY);
+
 	diffuse(2, velocityY, previousVelocityY, visc);
 	fixMassConservation();
+
 	SWAP(previousVelocityX, velocityX);
 	SWAP(previousVelocityY, velocityY);
 
