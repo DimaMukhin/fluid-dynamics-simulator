@@ -94,6 +94,11 @@ void Fluid::diffuse(int boundaryCondition, float * grid, float * previousGrid, f
 		for (int i = 1; i <= (N - 2); i++) {
 			for (int j = 1; j <= (N - 2); j++) {
 				grid[IX(i, j)] = (previousGrid[IX(i, j)] + a * (grid[IX(i - 1, j)] + grid[IX(i + 1, j)] + grid[IX(i, j - 1)] + grid[IX(i, j + 1)])) / (1 + 4 * a);
+				
+				// protection against a rare bug where sometimes we get NaN as a value in c++ (probably because of how memory is stored)
+				if (grid[IX(i, j)] != grid[IX(i, j)]) {
+					grid[IX(i, j)] = 0;
+				}
 			}
 		}
 

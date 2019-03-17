@@ -3,6 +3,8 @@
 #include "common.h"
 #include "FluidDisplay.h"
 
+#include <iostream>
+
 #define IX(i, j) ((i) + (N) * (j))
 
 #define SWAP(x0,x) {float *tmp=x0;x0=x;x=tmp;}
