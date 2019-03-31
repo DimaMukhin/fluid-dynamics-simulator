@@ -8,7 +8,6 @@ FluidDisplay::FluidDisplay(GLuint vertexCoordAttribLocation, GLuint vertexColorA
 	particles = new glm::vec4[numOfVertices]();
 	int count = 0;
 
-	// TODO: take a note that we go columns rows and not rows columns
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			particles[count] = glm::vec4((GLfloat) (j * scale), (GLfloat)(i * scale), 0.0f, 1.0f);
@@ -21,7 +20,6 @@ FluidDisplay::FluidDisplay(GLuint vertexCoordAttribLocation, GLuint vertexColorA
 	glPointSize((GLfloat) scale);
 }
 
-// TODO: I think that I know why I have a white border in the bottom and left. its because of how glPointSize works... its size around the point or something
 void FluidDisplay::display()
 {
 	glBindVertexArray(VAO);
