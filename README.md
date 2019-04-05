@@ -1,6 +1,6 @@
 # fluid-dynamics-simulator
 
-Final project submission for COMP 4490: Computer Graphics 2, Univeristy of Manitoba, Winter 2019.
+Final project submission for COMP 4490: Computer Graphics 2, Univeristy of Manitoba, Winter 2019.  
 Based on the following article by Jos Stam: ["Real-Time Fluid Dynamics for Games"](http://www.dgp.toronto.edu/people/stam/reality/Research/pdf/GDC03.pdf)
 
 ## Demo
