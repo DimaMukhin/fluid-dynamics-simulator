@@ -3,6 +3,10 @@
 Final project submission for COMP 4490: Computer Graphics 2, Univeristy of Manitoba, Winter 2019.
 Based on the following article by Jos Stam: ["Real-Time Fluid Dynamics for Games"](http://www.dgp.toronto.edu/people/stam/reality/Research/pdf/GDC03.pdf)
 
+## Demo
+
+![](demo3.gif)
+
 ## Getting Started
 
 1. open "opengl.sln" with Visual Studio (Windows only unless anybody wants to contribute a make file)
